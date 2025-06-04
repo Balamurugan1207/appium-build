@@ -14,7 +14,9 @@ RUN apt-get update && apt-get install -y \
     xvfb x11vnc fluxbox \
     net-tools telnet \
     libpulse0 \
-    nodejs npm python3-pip\
+    python3-pip \
+    && curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
+    && apt-get install -y nodejs \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Android Command Line Tools
