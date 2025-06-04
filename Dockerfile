@@ -53,4 +53,7 @@ RUN echo "no" | avdmanager create avd -n pixel_9 -k "system-images;android-34;go
 EXPOSE 5900
 
 # Start VNC server and emulator
-CMD xvfb-run --server-args="-screen 0 1280x720x24" bash -c "x11vnc -forever -usepw -create & $ANDROID_SDK_ROOT/emulator/emulator -avd pixel_9 -no-audio -no-boot-anim -gpu swiftshader_indirect -verbose"
+CMD xvfb-run --server-args="-screen 0 1280x720x24" bash -c "\
+    x11vnc -forever -passwd secret -display :0 & \
+    $ANDROID_SDK_ROOT/emulator/emulator -avd pixel_9 \
+    -no-audio -no-boot-anim -gpu swiftshader_indirect -no-snapshot-load -verbose"
