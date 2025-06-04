@@ -33,5 +33,5 @@ EXPOSE 5554 5555 5900
 
 # Start emulator with VNC and xvfb
 CMD xvfb-run --server-args="-screen 0 1280x720x24" bash -c "\
-    x11vnc -forever -usepw -create & \
+    x11vnc -forever -create & \
     emulator -avd pixel_9 -no-audio -no-boot-anim -gpu swiftshader_indirect -verbose"
