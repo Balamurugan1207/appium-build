@@ -25,19 +25,18 @@ RUN apt-get update && \
     libpulse0 \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-RUN mkdir -p ${ANDROID_SDK_ROOT}/cmdline-tools && \
-    wget -q https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O /tmp/commandlinetools.zip && \
-    unzip -q /tmp/commandlinetools.zip -d ${ANDROID_SDK_ROOT}/cmdline-tools/latest && \
-    rm /tmp/commandlinetools.zip && \
-    # Now, with the tools unpacked, the sdkmanager should be in the PATH
-    # that was set earlier, or we can explicitly call it with its full path.
-    # The 'yes' is piped to accept licenses.
-    echo yes | ${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager --licenses
-    
-RUN sdkmanager "platform-tools" "build-tools;34.0.0" "system-images;android-34;google_apis;x86_64"
+RUN mkdir -p $ANDROID_SDK_ROOT/cmdline-tools
 
-ENV AVD_NAME="Pixel_9_API_34"
-RUN echo no | avdmanager create avd --name "${AVD_NAME}" --package "system-images;android-34;google_apis;x86_64" --tag "google_apis" --abi "x86_64" --force
+RUN wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O cmdline-tools.zip && \
+    unzip cmdline-tools.zip -d $ANDROID_SDK_ROOT/cmdline-tools && \
+    mv $ANDROID_SDK_ROOT/cmdline-tools/cmdline-tools $ANDROID_SDK_ROOT/cmdline-tools/latest && \
+    rm cmdline-tools.zip
+
+RUN yes | sdkmanager --licenses && \
+    sdkmanager "platform-tools" "platforms;android-34" "system-images;android-34;google_apis;x86_64" "emulator"
+
+
+RUN echo "no" | avdmanager create avd -n pixel_9 -k "system-images;android-34;google_apis;x86_64" -d "pixel"
 
 
 COPY start_emulator.sh /usr/local/bin/start_emulator.sh
