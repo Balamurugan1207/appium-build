@@ -18,7 +18,7 @@ jobs:
         password: ${{ secrets.DOCKER_PASSWORD }}
 
     - name: Build Docker image
-      run: docker build -t ${{ secrets.DOCKER_USERNAME }}/tfs-emulator:latest .
+      run: docker build -t ${{ secrets.DOCKER_USERNAME }}/tfs-android-emulator:latest .
 
     - name: Push image to Docker Hub
-      run: docker push ${{ secrets.DOCKER_USERNAME }}/tfs-emulator:latest
+      run: docker push ${{ secrets.DOCKER_USERNAME }}/tfs-android-emulator:latest
