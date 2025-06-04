@@ -14,6 +14,7 @@ RUN apt-get update && apt-get install -y \
     xvfb x11vnc fluxbox \
     net-tools telnet \
     libpulse0 \
+    nodejs npm python3-pip\
     && rm -rf /var/lib/apt/lists/*
 
 # Install Android Command Line Tools
@@ -31,7 +32,8 @@ RUN yes | sdkmanager --licenses && \
 # Create and configure AVD
 RUN echo "no" | avdmanager create avd -n pixel_9 -k "system-images;android-30;google_apis;x86_64" --device "pixel"
 
-RUN npm install -g appium@latest && appium driver install uiautomator2
+RUN npm install -g appium@latest && \
+    appium driver install uiautomator2
 
 # Expose necessary ports for ADB and VNC
 EXPOSE 5554 5555 5900
