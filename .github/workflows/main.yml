@@ -18,7 +18,7 @@ jobs:
         password: ${{ secrets.DOCKER_PASSWORD }}
 
     - name: Build Docker image
-      run: docker build -t ${{ secrets.DOCKER_USERNAME }}/appium-emulator:v2.0 .
+      run: docker build -t ${{ secrets.DOCKER_USERNAME }}/tfs-emulator:latest .
 
     - name: Push image to Docker Hub
-      run: docker push ${{ secrets.DOCKER_USERNAME }}/appium-emulator:v2.0
+      run: docker push ${{ secrets.DOCKER_USERNAME }}/tfs-emulator:latest
