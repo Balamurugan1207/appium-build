@@ -33,7 +33,7 @@ RUN mkdir -p ${ANDROID_SDK_ROOT}/cmdline-tools && \
     rm /tmp/commandlinetools.zip
 
 # Accept Android SDK licenses
-RUN yes | sdkmanager --licenses
+RUN echo yes | sdkmanager --licenses
 
 # Install Android platform tools, build tools, and system image
 RUN sdkmanager "platform-tools" "build-tools;34.0.0" "system-images;android-34;google_apis;x86_64"
