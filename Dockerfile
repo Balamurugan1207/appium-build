@@ -2,6 +2,9 @@ FROM ubuntu:22.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV ANDROID_SDK_ROOT=/opt/android-sdk
+ENV SELENIUM=/usr/local/bin/selenium-server.jar
+
+COPY selenium-server.jar /usr/local/bin/selenium-server.jar
 
 # Install required packages
 RUN apt-get update && apt-get install -y \
@@ -27,6 +30,8 @@ RUN yes | sdkmanager --licenses && \
 
 # Create and configure AVD
 RUN echo "no" | avdmanager create avd -n pixel_9 -k "system-images;android-30;google_apis;x86_64" --device "pixel"
+
+RUN npm install -g appium@latest && appium driver install uiautomator2
 
 # Expose necessary ports for ADB and VNC
 EXPOSE 5554 5555 5900
