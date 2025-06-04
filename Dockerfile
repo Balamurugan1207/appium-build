@@ -10,6 +10,7 @@ RUN apt-get update && apt-get install -y \
     libglu1-mesa \
     xvfb x11vnc fluxbox \
     net-tools telnet \
+    libpulse0 \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Android Command Line Tools
