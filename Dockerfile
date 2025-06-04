@@ -1,59 +1,55 @@
-FROM ubuntu:20.04
+# Use a base image with necessary dependencies
+FROM ubuntu:22.04
 
 # Set environment variables
 ENV DEBIAN_FRONTEND=noninteractive
-ENV ANDROID_SDK_ROOT=/opt/android-sdk
-ENV PATH=$PATH:$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/platform-tools
+ENV ANDROID_SDK_ROOT="/opt/android-sdk"
+ENV PATH="$PATH:${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin:${ANDROID_SDK_ROOT}/platform-tools"
 
-# Install dependencies
-RUN apt-get update && apt-get install -y \
-    openjdk-11-jdk \
-    wget \
+# Install necessary packages
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    openjdk-17-jdk \
     unzip \
-    git \
-    curl \
+    wget \
+    libc6-i386 \
+    libstdc++6 \
     libglu1-mesa \
-    libpulse0 \
-    libx11-6 \
-    libxext6 \
-    libxrender1 \
-    libxtst6 \
-    libnss3 \
-    libxrandr2 \
-    libxcursor1 \
-    libxcomposite1 \
-    libasound2 \
-    libxi6 \
-    libdbus-glib-1-2 \
-    libqt5widgets5 \
-    libqt5gui5 \
-    libqt5core5a \
+    mesa-utils \
     xvfb \
     x11vnc \
-    fluxbox \
-    && rm -rf /var/lib/apt/lists/*
+    net-tools \
+    socat \
+    apt-utils \
+    git \
+    build-essential \
+    libpulse0 \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Create Android SDK directory
-RUN mkdir -p $ANDROID_SDK_ROOT/cmdline-tools
+# Download and install Android SDK Command-line Tools
+RUN mkdir -p ${ANDROID_SDK_ROOT}/cmdline-tools && \
+    wget -q https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O /tmp/commandlinetools.zip && \
+    unzip -q /tmp/commandlinetools.zip -d ${ANDROID_SDK_ROOT}/cmdline-tools/latest && \
+    rm /tmp/commandlinetools.zip
 
-# Download and install Android command line tools
-RUN wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O cmdline-tools.zip && \
-    unzip cmdline-tools.zip -d $ANDROID_SDK_ROOT/cmdline-tools && \
-    mv $ANDROID_SDK_ROOT/cmdline-tools/cmdline-tools $ANDROID_SDK_ROOT/cmdline-tools/latest && \
-    rm cmdline-tools.zip
+# Accept Android SDK licenses
+RUN yes | sdkmanager --licenses
 
-# Accept licenses and install SDK components
-RUN yes | sdkmanager --licenses && \
-    sdkmanager "platform-tools" "platforms;android-34" "system-images;android-34;google_apis;x86_64" "emulator"
+# Install Android platform tools, build tools, and system image
+RUN sdkmanager "platform-tools" "build-tools;34.0.0" "system-images;android-34;google_apis;x86_64"
 
-# Create Android Virtual Device (AVD)
-RUN echo "no" | avdmanager create avd -n pixel_9 -k "system-images;android-34;google_apis;x86_64" -d "pixel"
+# Create AVD for Pixel 9 (using a generic AVD name and system image)
+# Note: "Pixel 9" is a marketing name. We use a generic AVD configuration.
+# For Android 14, we use API level 34.
+ENV AVD_NAME="Pixel_9_API_34"
+RUN echo no | avdmanager create avd --name "${AVD_NAME}" --package "system-images;android-34;google_apis;x86_64" --tag "google_apis" --abi "x86_64" --force
+
+# Add a script to start the emulator and VNC server
+COPY start_emulator.sh /usr/local/bin/start_emulator.sh
+RUN chmod +x /usr/local/bin/start_emulator.sh
 
 # Expose VNC port
 EXPOSE 5900
 
-# Start VNC server and emulator
-CMD xvfb-run --server-args="-screen 0 1280x720x24" bash -c "\
-    x11vnc -forever -passwd secret -display :0 & \
-    $ANDROID_SDK_ROOT/emulator/emulator -avd pixel_9 \
-    -no-audio -no-boot-anim -gpu swiftshader_indirect -no-snapshot-load -verbose"
+# Start the emulator and VNC server
+CMD ["/usr/local/bin/start_emulator.sh"]
