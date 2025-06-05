@@ -3,6 +3,7 @@ FROM ubuntu:22.04
 ENV DEBIAN_FRONTEND=noninteractive
 ENV ANDROID_SDK_ROOT=/opt/android-sdk
 ENV SELENIUM=/usr/local/bin/selenium-server.jar
+ENV NOVNC_HOME=/opt/novnc
 
 COPY selenium-server.jar /usr/local/bin/selenium-server.jar
 
@@ -15,6 +16,7 @@ RUN apt-get update && apt-get install -y \
     net-tools telnet \
     libpulse0 \
     python3-pip \
+    websockify \
     && curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
     && apt-get install -y nodejs \
     && rm -rf /var/lib/apt/lists/*
@@ -37,10 +39,19 @@ RUN echo "no" | avdmanager create avd -n pixel_9 -k "system-images;android-30;go
 RUN npm install -g appium@latest && \
     appium driver install uiautomator2
 
-# Expose necessary ports for ADB and VNC
-EXPOSE 5554 5555 5900
+# Install noVNC
+RUN git clone https://github.com/novnc/noVNC.git /opt/novnc && \
+    git clone https://github.com/novnc/websockify.git /opt/novnc/utils/websockify
 
-# Start emulator with VNC and xvfb
-CMD xvfb-run --server-args="-screen 0 1280x720x24" bash -c "\
-    x11vnc -forever -create & \
-    emulator -avd pixel_9 -no-audio -no-boot-anim -gpu swiftshader_indirect -verbose"
+# Expose ports
+EXPOSE 5554 5555 5900 6080
+
+# Start emulator with VNC, xvfb and noVNC web client
+CMD bash -c "\
+    xvfb-run --server-args='-screen 0 1280x720x24' bash -c '\
+        fluxbox & \
+        x11vnc -forever -usepw -create -display :99 -rfbport 5900 & \
+        $ANDROID_SDK_ROOT/emulator/emulator -avd pixel_9 -no-audio -no-boot-anim -gpu swiftshader_indirect -verbose & \
+        appium --allow-cors --port 4723 & \
+        websockify --web=/opt/novnc --cert=/opt/novnc/self.pem 6080 localhost:5900' \
+    "
