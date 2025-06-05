@@ -37,7 +37,9 @@ RUN yes | sdkmanager --licenses && \
 RUN echo "no" | avdmanager create avd -n pixel_9 -k "system-images;android-30;google_apis;x86_64" --device "pixel"
 
 RUN npm install -g appium@latest && \
-    appium driver install uiautomator2
+    appium driver install uiautomator2 && \
+    npm install -g mjpeg-consumer && \
+    npm install -g simple-get
 
 # Install noVNC
 RUN git clone https://github.com/novnc/noVNC.git /opt/novnc && \
