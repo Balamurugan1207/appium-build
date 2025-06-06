@@ -3,5 +3,5 @@ server:
   use-drivers:
     - uiautomator2
   default-capabilities:
-    appium:mjpegServerPort: 9100
-    appium:mjpegScreenshotUrl: "http://localhost:9100"
+    appium:mjpegServerPort: 5432
+    appium:mjpegScreenshotUrl: "http://localhost:5432"
