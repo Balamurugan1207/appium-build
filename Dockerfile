@@ -43,8 +43,3 @@ RUN npm install -g appium@latest && \
 
 
 EXPOSE 5554 5555 5900 5432
-
-CMD bash -c "\
-        $ANDROID_SDK_ROOT/emulator/emulator -avd pixel_9 -no-audio -no-boot-anim -gpu swiftshader_indirect -verbose & \
-        appium --allow-cors --config /usr/local/bin/appium.yaml \
-    "
