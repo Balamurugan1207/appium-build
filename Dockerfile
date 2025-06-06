@@ -50,5 +50,5 @@ CMD bash -c "\
         fluxbox & \
         x11vnc -forever -usepw -create -display :99 -rfbport 5900 & \
         $ANDROID_SDK_ROOT/emulator/emulator -avd pixel_9 -no-audio -no-boot-anim -gpu swiftshader_indirect -verbose & \
-        appium --allow-cors --port 4723' \
+        appium --allow-cors --config /usr/local/bin/appium.yaml' \
     "
