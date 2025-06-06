@@ -1,5 +1,7 @@
 server:
   port: 4723
+  use-drivers:
+    - UiAutomator2
   default-capabilities:
     wdaLocalPort: 8100
     mjpegServerPort: 9100
