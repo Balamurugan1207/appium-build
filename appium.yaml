@@ -4,4 +4,4 @@ server:
     - uiautomator2
   default-capabilities:
     appium:mjpegServerPort: 5432
-    appium:mjpegScreenshotUrl: "http://localhost:5432"
+    appium:mjpegScreenshotUrl: "http://127.0.0.1:5432"
