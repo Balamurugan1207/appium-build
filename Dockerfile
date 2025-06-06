@@ -3,9 +3,9 @@ FROM ubuntu:22.04
 ENV DEBIAN_FRONTEND=noninteractive
 ENV ANDROID_SDK_ROOT=/opt/android-sdk
 ENV SELENIUM=/usr/local/bin/selenium-server.jar
-ENV NOVNC_HOME=/opt/novnc
 
 COPY selenium-server.jar /usr/local/bin/selenium-server.jar
+COPY appium.yaml /usr/local/bin/appium.yaml
 
 # Install required packages
 RUN apt-get update && apt-get install -y \
