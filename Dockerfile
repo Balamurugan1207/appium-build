@@ -41,12 +41,8 @@ RUN npm install -g appium@latest && \
     npm install -g mjpeg-consumer && \
     npm install -g simple-get
 
-# Install noVNC
-RUN git clone https://github.com/novnc/noVNC.git /opt/novnc && \
-    git clone https://github.com/novnc/websockify.git /opt/novnc/utils/websockify
-
 # Expose ports
-EXPOSE 5554 5555 5900 6080
+EXPOSE 5554 5555 5900 9100
 
 # Start emulator with VNC, xvfb and noVNC web client
 CMD bash -c "\
@@ -54,6 +50,5 @@ CMD bash -c "\
         fluxbox & \
         x11vnc -forever -usepw -create -display :99 -rfbport 5900 & \
         $ANDROID_SDK_ROOT/emulator/emulator -avd pixel_9 -no-audio -no-boot-anim -gpu swiftshader_indirect -verbose & \
-        appium --allow-cors --port 4723 & \
-        websockify --web=/opt/novnc --cert=/opt/novnc/self.pem 6080 localhost:5900' \
+        appium --allow-cors --port 4723' \
     "
