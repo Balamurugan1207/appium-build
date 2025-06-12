@@ -41,5 +41,10 @@ RUN npm install -g appium@latest && \
     npm install -g mjpeg-consumer && \
     npm install -g simple-get
 
-
 EXPOSE 5554 5555 5900 5432
+
+CMD bash -c "\
+    xvfb-run --server-args='-screen 0 1280x720x24' bash -c '\
+        fluxbox & \
+        x11vnc -forever -usepw -create -display :99 -rfbport 5900 & \
+        $ANDROID_SDK_ROOT/emulator/emulator -avd pixel_9 -no-audio -no-boot-anim -gpu swiftshader_indirect -verbose
