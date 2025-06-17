@@ -116,7 +116,7 @@ ARG ERPNEXT_BRANCH=v14.70.8
 ARG TFS_BRANCH=develop
 ARG HRMS_BRANCH=v14.28.4
 ARG FRAPPE_PATH=https://github.com/frappe/frappe
-ARG GIT_CREDENTIALS=https://Balamurugan1207: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@github.com
+ARG GIT_CREDENTIALS=https://Balamurugan1207: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@github.com
 RUN bench init \
     --frappe-branch=${FRAPPE_BRANCH} \
     --frappe-path=${FRAPPE_PATH} \
