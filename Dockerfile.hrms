@@ -111,16 +111,12 @@ RUN apt-get update \
 
 USER frappe
 
-ARG FRAPPE_BRANCH=version-14
-ARG ERPNEXT_BRANCH=version-14
+ARG FRAPPE_BRANCH=v14.77.4
+ARG ERPNEXT_BRANCH=v14.70.8
 ARG TFS_BRANCH=develop
-ARG HRMS_BRANCH=version-14
-ARG HELPDESK_BRANCH=version-14
-ARG TFSUTILS_BRANCH=main
+ARG HRMS_BRANCH=v14.28.4
 ARG FRAPPE_PATH=https://github.com/frappe/frappe
 ARG GIT_CREDENTIALS=https://Balamurugan1207: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@github.com
-ARG WIKI_BRANCH=version-14
-ARG INSIGHTS_BRANCH=version-3
 RUN bench init \
     --frappe-branch=${FRAPPE_BRANCH} \
     --frappe-path=${FRAPPE_PATH} \
@@ -135,11 +131,7 @@ RUN bench init \
   bench get-app erpnext --branch ${ERPNEXT_BRANCH} && \
   bench get-app https://github.com/techfinite-org/tfs.git --branch ${TFS_BRANCH} && \
   bench get-app hrms --branch ${HRMS_BRANCH} && \
-  bench get-app helpdesk --branch ${HELPDESK_BRANCH} && \
-  bench get-app https://github.com/techfinite-org/tfs_utils.git --branch ${TFSUTILS_BRANCH} && \
   bench get-app https://github.com/SAnnamalai-techfinite/frappe_whatsapp.git && \
-  bench get-app wiki --branch ${WIKI_BRANCH} && \
-  bench get-app insights --branch ${INSIGHTS_BRANCH} && \
   cp ./apps/tfs/tfs/data_exporter_override.js ./sites/assets/frappe/js/frappe/data_import/data_exporter.js && \
   bench build --app frappe && \
   echo "{}" > sites/common_site_config.json && \
