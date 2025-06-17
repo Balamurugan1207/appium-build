@@ -18,7 +18,7 @@ jobs:
         password: ${{ secrets.DOCKER_PASSWORD }}
 
     - name: Build Docker image
-      run: docker build -t ${{ secrets.DOCKER_USERNAME }}/hrms:latest -f Dockerfile.hrms .
+      run: docker build -t ${{ secrets.DOCKER_USERNAME }}/hrms:latest -f Dockerfile.hrms . --build-arg GIT_CREDENTIALS=${{ secrets.DOCKER_PASSWORD }}
 
     - name: Push image to Docker Hub
       run: docker push ${{ secrets.DOCKER_USERNAME }}/hrms:latest
