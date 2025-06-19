@@ -49,3 +49,4 @@ CMD bash -c "\
         fluxbox & \
         x11vnc -forever -create -display :99 -rfbport 5900 & \
         $ANDROID_SDK_ROOT/emulator/emulator -avd pixel_9 -no-audio -no-boot-anim -gpu swiftshader_indirect -verbose
+    '"
