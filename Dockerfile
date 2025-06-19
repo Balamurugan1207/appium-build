@@ -49,4 +49,5 @@ CMD bash -c "\
         x11vnc -forever -usepw -create -display :99 -rfbport 5900 & \
         $ANDROID_SDK_ROOT/emulator/emulator -avd pixel_9 \
             -no-audio -no-boot-anim -gpu swiftshader_indirect -no-snapshot \
-            -port 5554 -report-console tcp:0.0.0.0:5555
+            -port 5554 -report-console tcp:0.0.0.0:5555 \
+        "
