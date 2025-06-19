@@ -57,6 +57,6 @@ CMD bash -c "\
             -no-audio -no-boot-anim -gpu swiftshader_indirect -no-snapshot -no-window \
             -port 5554 \
             -qemu -netdev user,id=mynet0,hostfwd=tcp::5555-:5555 -device virtio-net-pci,netdev=mynet0 & \
-        sleep 30 && \
+        sleep 200 && \
         adb start-server && \
         tail -f /dev/null'"
