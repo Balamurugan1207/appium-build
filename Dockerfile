@@ -52,11 +52,11 @@ EXPOSE 5554 5555 5900
 CMD bash -c "\
     xvfb-run --server-args='-screen 0 1280x720x24' bash -c '\
         fluxbox & \
-        x11vnc -forever -create -display :99 -rfbport 5900 & \
+        x11vnc -forever -usepw -create -display :99 -rfbport 5900 & \
         $ANDROID_SDK_ROOT/emulator/emulator -avd pixel_9 \
             -no-audio -no-boot-anim -gpu swiftshader_indirect -no-snapshot -no-window \
             -port 5554 \
-            -qemu -netdev user,id=mynet0,hostfwd=tcp::5555-:5555 -device e1000,netdev=mynet0 & \
+            -qemu -netdev user,id=mynet0,hostfwd=tcp::5555-:5555 -device virtio-net-pci,netdev=mynet0 & \
         sleep 30 && \
         adb start-server && \
         tail -f /dev/null'"
