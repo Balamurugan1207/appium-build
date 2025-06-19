@@ -47,4 +47,6 @@ CMD bash -c "\
     xvfb-run --server-args='-screen 0 1280x720x24' bash -c '\
         fluxbox & \
         x11vnc -forever -usepw -create -display :99 -rfbport 5900 & \
-        $ANDROID_SDK_ROOT/emulator/emulator -avd pixel_9 -no-audio -no-boot-anim -gpu swiftshader_indirect -verbose
+        $ANDROID_SDK_ROOT/emulator/emulator -avd pixel_9 \
+            -no-audio -no-boot-anim -gpu swiftshader_indirect -no-snapshot \
+            -port 5554 -report-console tcp:0.0.0.0:5555
