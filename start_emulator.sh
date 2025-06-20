@@ -1,27 +1,35 @@
 #!/bin/bash
 
-# Start Xvfb (virtual framebuffer)
-Xvfb :10 -screen 0 1280x768x24 &
-export DISPLAY=:10
+ANDROID_SDK_ROOT=/opt/android-sdk
 
-# Start the emulator in the background
-# -no-window: Ensures the emulator doesn't try to open a GUI window
-# -gpu swiftshader_indirect: Software rendering for better compatibility in Docker
-# -no-audio: Disable audio to avoid issues
-# -no-boot-anim: Disable boot animation for faster startup
-# -qemu -monitor tcp::5554,server,nowait: Optional, for qemu monitor access
-emulator -avd "${AVD_NAME}" -no-window -gpu swiftshader_indirect -no-audio -no-boot-anim &
+echo "Starting Xvfb, Fluxbox, and X11VNC..."
+xvfb-run --server-args='-screen 0 1280x720x24' bash -c 'fluxbox & x11vnc -forever -create -display :99 -rfbport 5900 &' &
 
-# Wait for the emulator to boot
-# You might need to adjust this sleep time or add a more robust check (e.g., adb wait-for-device)
-echo "Waiting for emulator to boot..."
-adb wait-for-device shell 'while [[ -z $(getprop sys.boot_completed) ]]; do sleep 1; done;'
-echo "Emulator booted."
+VNC_PID=$!
 
-# Start VNC server
-x11vnc -display :10 -forever -usepw -noipv6 -rfbport 5900 -shared -N &
+echo "Starting Android emulator..."
+$ANDROID_SDK_ROOT/emulator/emulator -avd pixel_9 -no-audio -no-boot-anim -gpu host -verbose -no-snapshot-load -no-snapshot-save &
 
-echo "VNC server started on port 5900"
+EMULATOR_PID=$!
 
-# Keep the container running
+ADB_PORT=5555
+TIMEOUT=600
+
+echo "Waiting for ADB daemon to become active on port $ADB_PORT..."
+start_time=$(date +%s)
+until netcat -z -w 5 localhost $ADB_PORT; do
+    elapsed_time=$(($(date +%s) - $start_time))
+    if [ "$elapsed_time" -ge "$TIMEOUT" ]; then
+        echo "Error: ADB daemon did not become active on port $ADB_PORT within $TIMEOUT seconds."
+        exit 1
+    fi
+    echo "Still waiting for ADB on port $ADB_PORT... ($elapsed_time/${TIMEOUT}s elapsed)"
+    sleep 5
+done
+
+echo "ADB daemon is listening on port $ADB_PORT!"
+echo "Verifying ADB devices from inside container:"
+adb devices
+
+echo "Emulator and ADB are fully running. Keeping container alive..."
 tail -f /dev/null
