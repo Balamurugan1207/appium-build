@@ -8,6 +8,7 @@ xvfb-run --server-args='-screen 0 1280x720x24' bash -c 'fluxbox & x11vnc -foreve
 VNC_PID=$!
 
 echo "Starting Android emulator..."
+# Updated to use AVD for Android 34 (pixel_9 from Dockerfile)
 $ANDROID_SDK_ROOT/emulator/emulator -avd pixel_9 -no-audio -no-boot-anim -gpu host -verbose -no-snapshot-load -no-snapshot-save &
 
 EMULATOR_PID=$!
