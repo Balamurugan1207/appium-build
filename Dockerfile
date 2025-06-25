@@ -33,8 +33,8 @@ RUN echo no | avdmanager create avd \
 ENV ADBKEY_PATH=/root/.android/adbkey
 
 # 7. Copy startup script
-COPY start-emulator.sh /usr/local/bin/start-emulator.sh
-RUN chmod +x /usr/local/bin/start-emulator.sh
+COPY start_emulator.sh /usr/local/bin/start_emulator.sh
+RUN chmod +x /usr/local/bin/start_emulator.sh
 
 # 8. Expose ports
 EXPOSE 5555 6080
