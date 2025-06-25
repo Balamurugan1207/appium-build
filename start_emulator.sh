@@ -1,33 +1,30 @@
 #!/bin/bash
-# Launch virtual display
+set -e
+
+# Start virtual X display
 Xvfb :0 -screen 0 1080x1920x16 &
 
-# Start window manager and VNC server
+# Window manager + VNC server
 fluxbox &
-x11vnc -display :0 -forever -nopw &
+x11vnc -display :0 -nopw -forever &
 
-# Launch headless emulator with KVM acceleration
-emulator \
-  -avd pixel_34 \
+# Launch emulator
+emulator -avd pixel_34 \
   -no-window \
   -gpu swiftshader_indirect \
-  -no-audio \
-  -no-boot-anim \
   -accel on \
-  -camera-back none \
-  -camera-front none \
-  -no-snapshot-load \
-  -qemu -m 2048 &
+  -no-audio \
+  -no-boot-anim &
 
-# Wait for Android to boot fully
+# Wait for boot
 adb wait-for-device
 
-# Enable network ADB access
-ADBKEY="$ADBKEY_PATH" \
-  && adb tcpip 5555
+# Expose ADB over TCP
+adb tcpip 5555
 
-# Start noVNC
-git clone https://github.com/novnc/noVNC /opt/noVNC && \
-  /opt/noVNC/utils/novnc_proxy --vnc localhost:5900 &
+# Start noVNC for browser access
+git clone --depth=1 https://github.com/novnc/noVNC.git /opt/noVNC
+/opt/noVNC/utils/novnc_proxy --vnc localhost:5900 &
 
+# Keep container alive
 wait -n
