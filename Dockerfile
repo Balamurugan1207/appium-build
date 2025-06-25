@@ -28,4 +28,4 @@ RUN chmod +x /usr/local/bin/start_emulator.sh
 
 EXPOSE 5555 6080
 
-ENTRYPOINT ["/usr/local/bin/start-emulator.sh"]
+ENTRYPOINT ["/usr/local/bin/start_emulator.sh"]
