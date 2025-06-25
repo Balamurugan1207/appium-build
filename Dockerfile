@@ -1,64 +1,43 @@
-# Use Ubuntu 22.04 as the base image
+# 1. Base image with minimal OS and JDK
 FROM ubuntu:22.04
 
-# Set environment variables for non-interactive installations and Android SDK path
-ENV DEBIAN_FRONTEND=noninteractive
-ENV ANDROID_SDK_ROOT=/opt/android-sdk
-ENV SELENIUM=/usr/local/bin/selenium-server.jar
+ENV DEBIAN_FRONTEND=noninteractive \
+    ANDROID_SDK_ROOT=/opt/android/sdk \
+    PATH="$PATH:/opt/android/cmdline-tools/latest/bin:/opt/android/sdk/emulator:/opt/android/sdk/platform-tools"
 
-# Copy necessary files into the Docker image
-# Ensure these files (selenium-server.jar and appium.yaml) are in the same directory as your Dockerfile
-COPY selenium-server.jar /usr/local/bin/selenium-server.jar
-COPY appium.yaml /usr/local/bin/appium.yaml
-
-# Install required system packages
+# 2. Install dependencies
 RUN apt-get update && apt-get install -y \
-    curl unzip git wget sudo \
-    openjdk-17-jdk \
-    libglu1-mesa \
-    xvfb x11vnc fluxbox \
-    net-tools telnet \
-    libpulse0 \
-    python3-pip \
-    websockify \
-    netcat-traditional \
-    socat \
-    && curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
-    && apt-get install -y nodejs \
-    && rm -rf /var/lib/apt/lists/*
+    wget unzip curl xvfb x11vnc fluxbox \
+    libgl1-mesa-dev libpulse0 libx11-dev libxrandr-dev \
+    qemu-kvm libvirt-clients libvirt-daemon-system && \
+    rm -rf /var/lib/apt/lists/*
 
-# Install Android Command Line Tools with corrected pathing
-# Using a newer version for better compatibility (e.g., 11.0.0 from April 2024 or later if available)
-RUN mkdir -p ${ANDROID_SDK_ROOT}/cmdline-tools/latest && cd ${ANDROID_SDK_ROOT} && \
-    wget https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O cmdline-tools.zip && \
-    unzip cmdline-tools.zip -d ./temp_cmdline_tools && rm cmdline-tools.zip && \
-    mv ./temp_cmdline_tools/cmdline-tools/* cmdline-tools/latest/ && \
-    rm -rf ./temp_cmdline_tools
+# 3. Download Android command-line tools
+RUN mkdir -p "$ANDROID_SDK_ROOT/cmdline-tools" && \
+    wget -qO /tmp/tools.zip https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip && \
+    unzip /tmp/tools.zip -d "$ANDROID_SDK_ROOT/cmdline-tools/latest" && \
+    rm /tmp/tools.zip
 
-# Set the PATH environment variable to include Android SDK tools directories
-ENV PATH="${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin:${ANDROID_SDK_ROOT}/platform-tools:${ANDROID_SDK_ROOT}/emulator:${PATH}"
+# 4. Accept licenses & install SDK components
+RUN yes | sdkmanager --sdk_root=${ANDROID_SDK_ROOT} "platform-tools" "emulator" && \
+    sdkmanager --sdk_root=${ANDROID_SDK_ROOT} "system-images;android-34;google_apis_playstore;x86_64"
 
-# Accept Android SDK licenses and install necessary SDK packages
-# Updated to Android 34 (latest stable) for platforms and system images
-RUN yes | sdkmanager --licenses && \
-    sdkmanager "platform-tools" "platforms;android-34" "emulator" "system-images;android-34;google_apis;x86_64" "build-tools;34.0.0"
+# 5. Create AVD (Pixel 4 profiles are default Pixel form)
+RUN echo no | avdmanager create avd \
+    --name pixel_34 \
+    --package "system-images;android-34;google_apis_playstore;x86_64" \
+    --device "pixel" \
+    --force
 
-# Create and configure the Android Virtual Device (AVD)
-# Using Android 34 for the AVD
-RUN echo "no" | avdmanager create avd -n pixel_9 -k "system-images;android-34;google_apis;x86_64" --device "pixel"
+# 6. Set environment variables
+ENV ADBKEY_PATH=/root/.android/adbkey
 
-# Install Appium and its UIAutomator2 driver
-RUN npm install -g appium@latest && \
-    appium driver install uiautomator2 && \
-    npm install -g mjpeg-consumer && \
-    npm install -g simple-get
+# 7. Copy startup script
+COPY start-emulator.sh /usr/local/bin/start-emulator.sh
+RUN chmod +x /usr/local/bin/start-emulator.sh
 
-# Expose ports for ADB, emulator console, and VNC
-EXPOSE 5554 5555 5900 5432
+# 8. Expose ports
+EXPOSE 5555 6080
 
-# Copy the startup script into the image and make it executable
-COPY start_emulator.sh /usr/local/bin/start_emulator.sh
-RUN chmod +x /usr/local/bin/start_emulator.sh
-
-# Set the entrypoint for the container to run the startup script
-CMD ["/usr/local/bin/start_emulator.sh"]
+# 9. Default command
+ENTRYPOINT ["/usr/local/bin/start-emulator.sh"]
