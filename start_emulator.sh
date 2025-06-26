@@ -1,30 +1,36 @@
 #!/bin/bash
 set -e
 
-# Start virtual X display
 Xvfb :0 -screen 0 1080x1920x16 &
 
-# Window manager + VNC server
 fluxbox &
 x11vnc -display :0 -nopw -forever &
 
-# Launch emulator
 emulator -avd pixel_34 \
   -no-window \
   -gpu swiftshader_indirect \
+  -delay-adb \
   -accel on \
   -no-audio \
   -no-boot-anim &
 
-# Wait for boot
-adb wait-for-device
+# Wait for emulator to fully boot
+until adb shell getprop sys.boot_completed | grep -m 1 '1'; do
+  echo "⏳ Waiting for full boot..."
+  sleep 2
+done
 
-# Expose ADB over TCP
+adb kill-server
+adb start-server
+
+until adb connect localhost:5555 && adb devices | grep -w "localhost:5555"; do
+  echo "🔁 Retrying ADB connection..."
+  sleep 1
+done
+
 adb tcpip 5555
 
-# Start noVNC for browser access
 git clone --depth=1 https://github.com/novnc/noVNC.git /opt/noVNC
 /opt/noVNC/utils/novnc_proxy --vnc localhost:5900 &
 
-# Keep container alive
 wait -n
